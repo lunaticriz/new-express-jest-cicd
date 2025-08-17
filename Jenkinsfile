@@ -24,5 +24,11 @@ pipeline {
                 sh 'npm run build'
             }
         }
+
+        stage("Build Image") {
+            steps {
+                sh 'docker build -t express-jest-app:1.0 .'
+            }
+        }
     }
 }
