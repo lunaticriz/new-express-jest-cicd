@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        nodejs "NodeJS 24"  // Name you configured in Jenkins global tools
+    }
     stages {
         stage("checkout") {
             steps{
