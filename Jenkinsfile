@@ -5,13 +5,6 @@ pipeline {
         nodejs "NodeJS 24"
     }
 
-    environment {
-        IMAGE_NAME = "lunaticriz/express-jest-app"
-        DOCKERHUB_USERNAME = credentials('docker-hub-username')
-        DOCKERHUB_PASSWORD = credentials('docker-hub-password')
-        PATH = "/usr/local/bin:/usr/bin:/bin:$PATH"
-    }
-
     stages {
 
         stage("Checkout") {
@@ -46,25 +39,19 @@ pipeline {
             }
         }
 
-        stage("Build & Push Docker Image") {
+        stage("Build Image") {
             steps {
-                sh """
-                    docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-                    docker build -t $IMAGE_NAME:$BUILD_NUMBER .
-                    docker push $IMAGE_NAME:$BUILD_NUMBER
-                    docker tag $IMAGE_NAME:$BUILD_NUMBER $IMAGE_NAME:latest
-                    docker push $IMAGE_NAME:latest
-                """
+                sh 'docker build -t express-jest-app .'
             }
         }
     }
 
     post {
         success {
-            echo "✅ Build #${BUILD_NUMBER} completed successfully."
+            echo "✅ Build completed successfully."
         }
         failure {
-            echo "❌ Build #${BUILD_NUMBER} failed."
+            echo "❌ Build failed."
         }
         always {
             cleanWs()
