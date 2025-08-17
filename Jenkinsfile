@@ -7,18 +7,13 @@ pipeline {
 
     environment {
         IMAGE_NAME = "lunaticriz/express-jest-app"
-        DOCKERHUB_CRED = "docker-hub-creds"
-        PATH = "/usr/local/bin:/usr/bin:/bin:$PATH"
-    }
-
-    environment {
-        IMAGE_NAME = "lunaticriz/express-jest-app"
-        DOCKERHUB_USERNAME = credentials('docker-hub-creds') 
-        DOCKERHUB_PASSWORD = credentials('docker-hub-creds') 
+        DOCKERHUB_USERNAME = credentials('docker-hub-username')
+        DOCKERHUB_PASSWORD = credentials('docker-hub-password')
         PATH = "/usr/local/bin:/usr/bin:/bin:$PATH"
     }
 
     stages {
+
         stage("Checkout") {
             steps {
                 checkout scm
@@ -53,15 +48,13 @@ pipeline {
 
         stage("Build & Push Docker Image") {
             steps {
-                script {
-                    sh """
-                        /usr/local/bin/docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-                        /usr/local/bin/docker build -t $IMAGE_NAME:$BUILD_NUMBER .
-                        /usr/local/bin/docker push $IMAGE_NAME:$BUILD_NUMBER
-                        /usr/local/bin/docker tag $IMAGE_NAME:$BUILD_NUMBER $IMAGE_NAME:latest
-                        /usr/local/bin/docker push $IMAGE_NAME:latest
-                    """
-                }
+                sh """
+                    docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+                    docker build -t $IMAGE_NAME:$BUILD_NUMBER .
+                    docker push $IMAGE_NAME:$BUILD_NUMBER
+                    docker tag $IMAGE_NAME:$BUILD_NUMBER $IMAGE_NAME:latest
+                    docker push $IMAGE_NAME:latest
+                """
             }
         }
     }
@@ -74,9 +67,7 @@ pipeline {
             echo "❌ Build #${BUILD_NUMBER} failed."
         }
         always {
-            node {
-                cleanWs()
-            }
+            cleanWs()
         }
     }
 }
