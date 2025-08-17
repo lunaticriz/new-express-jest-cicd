@@ -6,8 +6,8 @@ pipeline {
     }
 
     environment {
+        PATH = "/usr/local/bin:$PATH"
         IMAGE_NAME = "lunaticriz/express-jest-app"
-        PATH = "/usr/local/bin/docker"
         DOCKERHUB_CREDS = "docker-hub-creds"
     }
 
