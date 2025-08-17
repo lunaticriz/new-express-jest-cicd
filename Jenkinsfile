@@ -6,11 +6,12 @@ pipeline {
     }
 
     environment {
-        // Append system paths instead of overwriting PATH
-        PATH = "/usr/local/bin:/usr/bin:/bin:$PATH"
         IMAGE_NAME = "lunaticriz/express-jest-app"
-        DOCKERHUB_CREDS = "docker-hub-creds"
+        DOCKERHUB_USERNAME = credentials('docker-hub-username')
+        DOCKERHUB_PASSWORD = credentials('docker-hub-password')
+        PATH = "/usr/local/bin:/usr/bin:/bin:$PATH"
     }
+
 
     stages {
         stage("Checkout") {
@@ -48,14 +49,17 @@ pipeline {
         stage("Build & Push Docker Image") {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDS) {
-                        def app = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
-                        app.push()
-                        app.push("latest")
-                    }
+                    sh """
+                        /usr/local/bin/docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD} https://index.docker.io/v1/
+                        /usr/local/bin/docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .
+                        /usr/local/bin/docker push ${IMAGE_NAME}:${BUILD_NUMBER}
+                        /usr/local/bin/docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest
+                        /usr/local/bin/docker push ${IMAGE_NAME}:latest
+                    """
                 }
             }
         }
+
     }
 
     post {
