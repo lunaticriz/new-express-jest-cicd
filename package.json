@@ -2,11 +2,10 @@
   "name": "new-express-jest",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "jest",
-    "build": "echo 'Running build'"
+    "start": "node src/server.js",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
