@@ -2,17 +2,18 @@ pipeline {
     agent any
 
     tools {
-        nodejs "NodeJS 24"  // Name you configured in Jenkins global tools
+        nodejs "NodeJS 24"
     }
 
     environment {
         IMAGE_NAME = "lunaticriz/express-jest-app"
-        DOCKERHUB_CREDS = "docker-hub-creds"   // Jenkins Credentials ID
+        PATH = "/usr/local/bin:${env.PATH}"
+        DOCKERHUB_CREDS = "docker-hub-creds"
     }
 
     stages {
-        stage("checkout") {
-            steps{
+        stage("Checkout") {
+            steps {
                 checkout scm
             }
         }
@@ -32,17 +33,11 @@ pipeline {
             }
         }
 
-        stage("Build Image") {
-            steps {
-                sh 'docker build -t express-jest-app:1.0 .'
-            }
-        }
-
         stage("Build & Push Docker Image") {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-creds') {
-                        def app = docker.build("lunaticriz/express-jest-app:${BUILD_NUMBER}")
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDS) {
+                        def app = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
                         app.push()
                         app.push("latest")
                     }
