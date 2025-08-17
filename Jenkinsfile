@@ -6,7 +6,8 @@ pipeline {
     }
 
     environment {
-        PATH = "/usr/local/bin:$PATH"
+        // Append system paths instead of overwriting PATH
+        PATH = "/usr/local/bin:/usr/bin:/bin:$PATH"
         IMAGE_NAME = "lunaticriz/express-jest-app"
         DOCKERHUB_CREDS = "docker-hub-creds"
     }
@@ -21,6 +22,8 @@ pipeline {
         stage("Test") {
             steps {
                 sh '''
+                    echo "Using Node: $(node -v)"
+                    echo "Using NPM: $(npm -v)"
                     npm install
                     npm test
                 '''
@@ -30,6 +33,15 @@ pipeline {
         stage("Build") {
             steps {
                 sh 'npm run build'
+            }
+        }
+
+        stage("Check Docker") {
+            steps {
+                sh '''
+                    echo "Docker path: $(which docker)"
+                    docker --version
+                '''
             }
         }
 
