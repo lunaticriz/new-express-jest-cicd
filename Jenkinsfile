@@ -34,30 +34,6 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis with Docker') {
-            steps {
-                script {
-                    // Start SonarQube server
-                    sh 'docker run -d --name sonarqube -p 9000:9000 sonarqube:community'
-                    // Wait for SonarQube to be up (simple wait, for demo purposes)
-                    sh 'sleep 60'
-                    // Run sonar-scanner in a container, replace values as needed
-                    sh '''
-                    docker run --rm \
-                        -e SONAR_HOST_URL="http://host.docker.internal:9000" \
-                        -v $(pwd):/usr/src \
-                        sonarsource/sonar-scanner-cli \
-                        -Dsonar.projectKey=your_project_key \
-                        -Dsonar.sources=src \
-                        -Dsonar.tests=tests \
-                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                    '''
-                    // Stop SonarQube server
-                    sh 'docker stop sonarqube && docker rm sonarqube'
-                }
-            }
-        }
-
         stage("Check Docker") {
             steps {
                 sh '''
