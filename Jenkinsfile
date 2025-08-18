@@ -68,9 +68,16 @@ pipeline {
 
         stage("Run Docker Container") {
             steps {
-                sh '''
-                    docker run -d -p 3000:3000 --name $IMAGE_NAME $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
-                '''
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: "${DOCKERHUB_CRED}", 
+                        usernameVariable: 'DOCKER_USER', 
+                        passwordVariable: 'DOCKER_PASS')
+                    ]) {
+                    sh '''
+                        docker run -d -p 3000:3000 --name $IMAGE_NAME $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
+                    '''
+                }
             }
         }
     }
