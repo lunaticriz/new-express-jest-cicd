@@ -65,14 +65,22 @@ pipeline {
                 }
             }
         }
+
+        stage("Run Docker Container") {
+            steps {
+                sh '''
+                    docker run -d -p 3000:3000 --name $IMAGE_NAME $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
+                '''
+            }
+        }
     }
 
     post {
         success {
-            echo "✅ Build and Docker push completed successfully."
+            echo "✅ Build $IMAGE_NAME:$IMAGE_TAG and Docker push completed successfully."
         }
         failure {
-            echo "❌ Build or Docker push failed."
+            echo "❌ Build $IMAGE_NAME:$IMAGE_TAG or Docker push failed."
         }
         always {
             cleanWs()
